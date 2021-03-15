@@ -1,0 +1,6 @@
+[
+  {
+    "name": "ALMUpdater",
+    "firmware": "./firmware.json"
+  }
+]
