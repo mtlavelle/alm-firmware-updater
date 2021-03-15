@@ -1,3 +1,4 @@
+// Declare data variables
 let data = {
   noDevice: true,
   firmwareFile: null,
@@ -10,29 +11,29 @@ let data = {
   selectedFirmware: null
 }
 
-let buffer
-let ex_buffer
-
-let anotherBuffer
-let evenMoreBuffer
+// Declare buffer variables
+let arrayBuffer
+let sourceFileBuffer
+let firmwareFileBuffer
 
 function getRootUrl() {
   let url = document.URL
   return url
 }
 
+// Adds selected firmware file to the arrayBuffer to be
+// flashed to connected module
 function readServerFirmwareFile(path) {
   let raw = new XMLHttpRequest()
-  let fname = path
+  let fileName = path
 
-  raw.open('GET', fname, true)
+  raw.open('GET', fileName, true)
   raw.responseType = 'arraybuffer'
+
   raw.onreadystatechange = function () {
     if (this.readyState === 4 && this.status === 200) {
       let obj = this.response
-      console.log(obj)
-      buffer = obj
-      console.log(buffer)
+      arrayBuffer = obj
     }
   }
 
@@ -48,6 +49,7 @@ let app = new Vue({
   <v-app>
     <v-main>
       <v-container width="400" class="mx-auto">
+        <!-- HEADER -->
         <v-row>
           <v-col class="d-flex align-center align-self-auto">
             <div>
@@ -64,6 +66,7 @@ let app = new Vue({
           </v-col>
         </v-row>
 
+        <!-- MODULE CONNECTION -->
         <v-container>
           <v-row>
             <v-col cols="3">
@@ -138,6 +141,7 @@ let app = new Vue({
           </v-row>
         </v-container>
 
+        <!-- SELECT FIELD HEADERS -->
         <v-container>
           <v-row style="flex-wrap: nowrap">
             <v-col cols="6">
@@ -152,6 +156,7 @@ let app = new Vue({
           </v-row>
         </v-container>
 
+        <!-- SELECT FIELDS -->
         <v-container>
           <v-row style="flex-wrap: nowrap">
             <v-col cols="6">
@@ -202,16 +207,18 @@ let app = new Vue({
           </v-row>
         </v-container>
 
+        <!-- DISPLAYS INFO LOG WHILE FLASHING -->
         <v-container>
           <v-row>
             <v-col align="center">
               <v-container align="center">
-                <div class="flashing-info" id="downloadLog"></div>
+                <div class="log" id="downloadLog"></div>
               </v-container>
             </v-col>
           </v-row>
         </v-container>
 
+        <!-- VUETIFY DIVIDER -->
         <v-container>
           <v-row>
             <v-col>
@@ -220,6 +227,7 @@ let app = new Vue({
           </v-row>
         </v-container>
 
+        <!-- INSTRUCTIONS -->
         <v-container>
           <v-row>
             <v-col>
@@ -250,6 +258,7 @@ let app = new Vue({
   data: data,
 
   computed: {
+    // Filters firmware choices by selected module
     moduleFirmwares() {
       return this.firmwares
         .filter(firmware => firmware.module === this.selectedModule)
@@ -259,45 +268,53 @@ let app = new Vue({
     }
   },
 
-  created() {},
-
   mounted() {
+    // Calls readTextFile function on page load
     this.readTextFile()
   },
 
   methods: {
+    // Fetches and parses data from local JSON files
     readTextFile() {
       let self = this
-      let rawFile = new XMLHttpRequest()
+      let sourceFile = new XMLHttpRequest()
 
-      rawFile.overrideMimeType('application/json')
-      rawFile.open('GET', '../data/moduleSource.json', true)
-      rawFile.responseType = 'text'
+      sourceFile.overrideMimeType('application/json')
+      sourceFile.open('GET', '../data/moduleSource.json', true)
+      sourceFile.responseType = 'text'
 
-      rawFile.onreadystatechange = function () {
-        if (rawFile.readyState === 4 && rawFile.status == '200') {
-          let obj = this.response
-          anotherBuffer = JSON.parse(obj)
+      sourceFile.onreadystatechange = function () {
+        if (sourceFile.readyState === 4 && sourceFile.status == '200') {
+          let sourceObject = this.response
+          sourceFileBuffer = JSON.parse(sourceObject)
 
-          anotherBuffer.forEach(() => {
-            let moreRaw = new XMLHttpRequest()
+          sourceFileBuffer.forEach(() => {
+            let firmwareFile = new XMLHttpRequest()
 
-            moreRaw.open('GET', '../data/firmware.json', true)
-            moreRaw.responseType = 'text'
+            firmwareFile.overrideMimeType('application/json')
+            firmwareFile.open('GET', '../data/firmware.json', true)
+            firmwareFile.responseType = 'text'
 
-            moreRaw.onreadystatechange = function () {
+            firmwareFile.onreadystatechange = function () {
               if (this.readyState === 4 && this.status === 200) {
-                let extObj = this.response
-                evenMoreBuffer = JSON.parse(extObj)
+                let firmwareObject = this.response
+                firmwareFileBuffer = JSON.parse(firmwareObject)
 
-                const moduleFilter = [
-                  ...new Set(evenMoreBuffer.map(obj => obj.module))
-                ]
-
-                evenMoreBuffer.forEach(obj => {
-                  self.firmwares.push(obj)
+                // Parses all firmware options and appends them to the
+                // firmwares data array
+                firmwareFileBuffer.forEach(firmware => {
+                  self.firmwares.push(firmware)
                 })
 
+                // Parses module names from firmwareFileBuffer
+                const moduleFilter = [
+                  ...new Set(
+                    firmwareFileBuffer.map(moduleObject => moduleObject.module)
+                  )
+                ]
+
+                // Filters unique module names from all firmware options and
+                // appends them to the modules data array
                 moduleFilter.forEach(function (uniqueModule) {
                   if (!self.modules.includes(uniqueModule)) {
                     self.modules.push(uniqueModule)
@@ -306,24 +323,26 @@ let app = new Vue({
               }
             }
 
-            moreRaw.send(null)
+            firmwareFile.send(null)
           })
         }
       }
 
-      rawFile.send(null)
+      sourceFile.send(null)
     },
 
+    // Gets firmware file path from selectedFirmware and
+    // passes it the the readServerFirmwareFile function
     programChanged() {
       let self = this
       self.firmwareFileName = self.selectedFirmware.name
       this.displaySelectedFile = true
-      let srcPath = self.selectedFirmware.filepath
-      console.log(srcPath)
-      readServerFirmwareFile(srcPath)
+      let firmwarePath = self.selectedFirmware.filepath
+
+      readServerFirmwareFile(firmwarePath)
+
       setTimeout(function () {
-        firmwareFile = buffer
-        console.log(firmwareFile)
+        firmwareFile = arrayBuffer
       }, 500)
     }
   },
@@ -338,8 +357,6 @@ let app = new Vue({
         filepath: null,
         module: null
       }
-
-      console.log(newFirmware)
 
       this.selectedFirmware = newFirmware
 
