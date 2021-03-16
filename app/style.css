@@ -13,9 +13,14 @@
 }
 
 h1,
-h3 {
+h2,
+h3,
+.v-btn {
   font-family: 'raisonne-demibold-pro', Helvetica, Arial, sans-serif;
-  line-height: 1.6;
+}
+
+.v-btn:not(.v-btn--round).v-size--default {
+  height: 38px;
 }
 
 h1 {
@@ -23,7 +28,8 @@ h1 {
 }
 
 p,
-li {
+li,
+.v-select__selections {
   font-family: 'basis-grotesque-regular-pro', Helvetica, Arial, sans-serif;
 }
 

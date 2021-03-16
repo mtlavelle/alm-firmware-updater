@@ -193,9 +193,8 @@ let app = new Vue({
                 color="#e0e0e0"
                 item-color="#e0e0e0"
                 :disabled="noDevice"
-                outlined
-                filled
                 dense
+                solo
               >
               </v-select>
             </v-col>
@@ -214,9 +213,8 @@ let app = new Vue({
                 item-color="#e0e0e0"
                 :disabled="noDevice"
                 return-object
-                outlined
-                filled
                 dense
+                solo
                 required
               >
               </v-select>
