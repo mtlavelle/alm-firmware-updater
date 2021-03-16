@@ -234,7 +234,7 @@ var dfuse = {}
       throw 'No memory map available'
     }
 
-    this.logInfo('Erasing DFU device memory')
+    this.logInfo('Erasing current firmware...')
 
     let bytes_sent = 0
     let expected_size = data.byteLength
@@ -254,7 +254,7 @@ var dfuse = {}
     }
     await this.erase(startAddress, expected_size)
 
-    this.logInfo('Copying data from browser to DFU device')
+    this.logInfo('Copying firmware to module...')
 
     let address = startAddress
     while (bytes_sent < expected_size) {
@@ -281,14 +281,14 @@ var dfuse = {}
         throw `DFU DOWNLOAD failed state=${dfu_status.state}, status=${dfu_status.status}`
       }
 
-      this.logDebug('Wrote ' + bytes_written + ' bytes')
+      this.logDebug('Wrote ' + bytes_written + ' bytes...')
       bytes_sent += bytes_written
 
       this.logProgress(bytes_sent, expected_size)
     }
-    this.logInfo(`Wrote ${bytes_sent} bytes`)
+    this.logInfo(`Wrote ${bytes_sent} bytes...`)
 
-    this.logInfo('Manifesting new firmware')
+    this.logInfo('Installing new firmware...')
     try {
       await this.dfuseCommand(dfuse.SET_ADDRESS, startAddress, 4)
       await this.download(new ArrayBuffer(), 0)

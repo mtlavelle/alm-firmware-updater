@@ -19,10 +19,29 @@ h3 {
 }
 
 h1 {
-  font-size: 54px;
+  font-size: 3rem;
 }
 
 p,
 li {
   font-family: 'basis-grotesque-regular-pro', Helvetica, Arial, sans-serif;
+}
+
+#status {
+  color: #ff2136;
+  padding: 0.2rem;
+}
+
+.log h4 {
+  text-align: left;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+  font-size: 1.5rem;
+}
+
+.flashing-info-col,
+.flashing-col,
+.flashing-divider {
+  padding-top: 0;
+  padding-bottom: 0;
 }

@@ -1,5 +1,6 @@
 var firmwareFile = null
 var device = null
+
 ;(function () {
   'use strict'
 
@@ -174,15 +175,24 @@ var device = null
   }
 
   function logDebug(msg) {
-    console.log(msg)
+    // console.log(msg)
   }
 
   function logInfo(msg) {
     if (logContext) {
-      let info = document.createElement('p')
+      let infos = document.getElementsByTagName('h4')
       // info.className = "info";
-      info.textContent = msg
-      logContext.appendChild(info)
+
+      if (infos.length) {
+        infos[0].parentNode.removeChild(infos[0])
+        let info = document.createElement('h4')
+        info.textContent = msg
+        logContext.appendChild(info)
+      } else {
+        let info = document.createElement('h4')
+        info.textContent = msg
+        logContext.appendChild(info)
+      }
     }
   }
 
@@ -212,7 +222,7 @@ var device = null
       }
       if (!progressBar) {
         progressBar = document.createElement('progress')
-        logContext.appendChild(progressBar)
+        // logContext.appendChild(progressBar)
       }
       progressBar.value = done
       if (typeof total !== 'undefined') {
@@ -268,20 +278,16 @@ var device = null
 
     let transferSizeField = document.querySelector('#transferSize')
     let transferSize = 1024
-    //let transferSize = parseInt(transferSizeField.value);
 
     let dfuseStartAddressField = document.querySelector('#dfuseStartAddress')
     let dfuseUploadSizeField = document.querySelector('#dfuseUploadSize')
 
     let firmwareFileField = document.querySelector('#firmwareFile')
-    // let firmwareFile = null;
 
     let downloadLog = document.querySelector('#downloadLog')
     let uploadLog = document.querySelector('#uploadLog')
 
     let manifestationTolerant = true
-
-    //let device;
 
     function onDisconnect(reason) {
       if (reason) {
@@ -301,7 +307,8 @@ var device = null
       if (device !== null && device.device_ !== null) {
         if (device.device_ === event.device) {
           device.disconnected = true
-          onDisconnect('Device disconnected')
+          onDisconnect('Device Disconnected')
+          app.noDevice = true
           device = null
         }
       }
@@ -400,13 +407,9 @@ var device = null
       clearLog(downloadLog)
 
       // Display basic USB information
-      statusDisplay.textContent = ''
+      statusDisplay.textContent = 'Connected!'
       connectButton.textContent = 'Disconnect'
       infoDisplay.textContent = ''
-      //"Name: " + device.device_.productName + "\n" +
-      //"MFG: " + device.device_.manufacturerName + "\n" +
-      //"Serial: " + device.device_.serialNumber + "\n"
-      //);
 
       // Display basic dfu-util style info
       dfuDisplay.textContent = formatDFUSummary(device) + '\n' + memorySummary
@@ -462,10 +465,10 @@ var device = null
           }
         }
 
-        if (matching_devices.length == 0) {
+        if (matching_devices.length === 0) {
           statusDisplay.textContent = 'No device found.'
         } else {
-          if (matching_devices.length == 1) {
+          if (matching_devices.length === 1) {
             statusDisplay.textContent = 'Connecting...'
             device = matching_devices[0]
             console.log(device)
@@ -480,35 +483,10 @@ var device = null
       })
     }
 
-    // vidField.addEventListener("change", function() {
-    //     vid = parseInt(vidField.value, 16);
-    // });
-
-    // transferSizeField.addEventListener("change", function() {
-    //     transferSize = parseInt(transferSizeField.value);
-    // });
-
-    // dfuseStartAddressField.addEventListener("change", function(event) {
-    //     const field = event.target;
-    //     let address = parseInt(field.value, 16);
-    //     if (isNaN(address)) {
-    //         field.setCustomValidity("Invalid hexadecimal start address");
-    //     } else if (device && device.memoryInfo) {
-    //         if (device.getSegment(address) !== null) {
-    //             device.startAddress = address;
-    //             field.setCustomValidity("");
-    //             dfuseUploadSizeField.max = device.getMaxReadSize(address);
-    //         } else {
-    //             field.setCustomValidity("Address outside of memory map");
-    //         }
-    //     } else {
-    //         field.setCustomValidity("");
-    //     }
-    // });
-
     connectButton.addEventListener('click', function () {
       if (device) {
         device.close().then(onDisconnect)
+        app.noDevice = true
         device = null
       } else {
         let filters = []
@@ -559,76 +537,6 @@ var device = null
       }
     })
 
-    // detachButton.addEventListener('click', function() {
-    //     if (device) {
-    //         device.detach().then(
-    //             async len => {
-    //                 let detached = false;
-    //                 try {
-    //                     await device.close();
-    //                     await device.waitDisconnected(5000);
-    //                     detached = true;
-    //                 } catch (err) {
-    //                     console.log("Detach failed: " + err);
-    //                 }
-
-    //                 onDisconnect();
-    //                 device = null;
-    //                 if (detached) {
-    //                     // Wait a few seconds and try reconnecting
-    //                     setTimeout(autoConnect, 5000);
-    //                 }
-    //             },
-    //             async error => {
-    //                 await device.close();
-    //                 onDisconnect(error);
-    //                 device = null;
-    //             }
-    //         );
-    //     }
-    // });
-
-    // uploadButton.addEventListener('click', async function(event) {
-    //     event.preventDefault();
-    //     event.stopPropagation();
-    //     if (!configForm.checkValidity()) {
-    //         configForm.reportValidity();
-    //         return false;
-    //     }
-
-    //     if (!device || !device.device_.opened) {
-    //         onDisconnect();
-    //         device = null;
-    //     } else {
-    //         setLogContext(uploadLog);
-    //         clearLog(uploadLog);
-    //         try {
-    //             let status = await device.getStatus();
-    //             if (status.state == dfu.dfuERROR) {
-    //                 await device.clearStatus();
-    //             }
-    //         } catch (error) {
-    //             device.logWarning("Failed to clear status");
-    //         }
-
-    //         let maxSize = Infinity;
-    //         if (!dfuseUploadSizeField.disabled) {
-    //             maxSize = parseInt(dfuseUploadSizeField.value);
-    //         }
-
-    //         try {
-    //             const blob = await device.do_upload(transferSize, maxSize);
-    //             saveAs(blob, "firmware.bin");
-    //         } catch (error) {
-    //             logError(error);
-    //         }
-
-    //         setLogContext(null);
-    //     }
-
-    //     return false;
-    // });
-
     downloadButton.addEventListener('click', async function (event) {
       event.preventDefault()
       event.stopPropagation()
@@ -652,12 +560,13 @@ var device = null
           .do_download(transferSize, firmwareFile, manifestationTolerant)
           .then(
             () => {
-              logInfo('Done!')
+              logInfo('Module now updated and ready to use!')
               setLogContext(null)
               if (!manifestationTolerant) {
                 device.waitDisconnected(5000).then(
                   dev => {
                     onDisconnect()
+                    app.noDevice = true
                     device = null
                   },
                   error => {
@@ -685,7 +594,9 @@ var device = null
         autoConnect(vid, serial)
       }
     } else {
-      statusDisplay.textContent = 'WebUSB not available.'
+      statusDisplay.textContent =
+        'WebUSB not available, please use the Chrome browser.'
+
       connectButton.disabled = true
     }
   })

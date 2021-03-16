@@ -8,7 +8,8 @@ let data = {
   modules: [],
   firmwares: [],
   selectedModule: null,
-  selectedFirmware: null
+  selectedFirmware: null,
+  isFlashing: false
 }
 
 // Declare buffer variables
@@ -68,19 +69,28 @@ let app = new Vue({
 
         <!-- MODULE CONNECTION -->
         <v-container>
-          <v-row>
-            <v-col cols="3">
-              <h2>Connect Module</h2>
-            </v-col>
-
-            <v-col cols="3">
-              <v-btn id="connect" color="#ffbc01">Connect</v-btn>
+          <v-row class="mt-2">
+            <v-col cols="6">
+              <h3>Connect Module</h3>
+              <v-btn id="connect" color="#ffbc01" class="mt-5">Connect</v-btn>
             </v-col>
 
             <v-col cols="6">
+              <h3>Connection Status:</h3>
+              <strong>
+                <h3 id="status" class="mt-5"></h3>
+              </strong>
+            </v-col>
+          </v-row>
+        </v-container>
+
+        <v-container>
+          <v-row>
+            <v-col>
               <div>
                 <button id="detach" disabled="true" hidden="true">Detach DFU</button>
                 <button id="upload" disabled="true" hidden="true">Upload</button>
+
                 <v-form id="configForm">
                   <p>
                     <label for="transferSize" hidden="true">Transfer Size:</label>
@@ -92,7 +102,6 @@ let app = new Vue({
                       value="1024"
                     />
                   </p>
-                  <p><span id="status"></span></p>
 
                   <p>
                     <label hidden="true" for="vid">Vendor ID (hex):</label>
@@ -106,13 +115,14 @@ let app = new Vue({
                       size="8"
                       pattern="0x[A-Fa-f0-9]{1,4}"
                     />
-                    <datalist id="vendor_ids"> </datalist>
+                    <datalist id="vendor_ids"></datalist>
                   </p>
 
                   <div class="mt-1" id="dfuseFields" hidden="true">
-                    <label for="dfuseStartAddress" hidden="true"
-                      >DfuSe Start Address:</label
-                    >
+                    <label for="dfuseStartAddress" hidden="true">
+                      DfuSe Start Address:
+                    </label>
+
                     <input
                       type="text"
                       name="dfuseStartAddress"
@@ -122,7 +132,11 @@ let app = new Vue({
                       size="10"
                       pattern="0x[A-Fa-f0-9]+"
                     />
-                    <label for="dfuseUploadSize" hidden="true">DfuSe Upload Size:</label>
+
+                    <label for="dfuseUploadSize" hidden="true">
+                      DfuSe Upload Size:
+                    </label>
+
                     <input
                       type="number"
                       name="dfuseUploadSize"
@@ -137,6 +151,17 @@ let app = new Vue({
 
               <div id="usbInfo" hidden="true" style="white-space: pre"></div>
               <div id="dfuInfo" hidden="true" style="white-space: pre"></div>
+            </v-col>
+          </v-row>
+        </v-container>
+
+        <!-- VUETIFY DIVIDER -->
+        <v-container>
+          <v-row>
+            <v-col>
+              <br/>
+              <v-divider color="#000"></v-divider>
+              <br/>
             </v-col>
           </v-row>
         </v-container>
@@ -167,6 +192,7 @@ let app = new Vue({
                 background-color="#f6f6f6"
                 color="#e0e0e0"
                 item-color="#e0e0e0"
+                :disabled="noDevice"
                 outlined
                 filled
                 dense
@@ -186,6 +212,7 @@ let app = new Vue({
                 background-color="#f6f6f6"
                 color="#e0e0e0"
                 item-color="#e0e0e0"
+                :disabled="noDevice"
                 return-object
                 outlined
                 filled
@@ -200,6 +227,7 @@ let app = new Vue({
                 color="#ffbc01"
                 id="download"
                 :disabled="noDevice || !selectedFirmware"
+                @click="flashingStatusChanged"
               >
                 Flash
               </v-btn>
@@ -210,19 +238,21 @@ let app = new Vue({
         <!-- DISPLAYS INFO LOG WHILE FLASHING -->
         <v-container>
           <v-row>
-            <v-col align="center">
-              <v-container align="center">
-                <div class="log" id="downloadLog"></div>
-              </v-container>
+            <v-col class="flashing-info-col">
+              <h3 v-if="isFlashing">
+                Flashing Status for {{ selectedFirmware.module }},
+                firmware {{ selectedFirmware.name }}:
+              </h3>
+              <div class="log" id="downloadLog"></div>
             </v-col>
           </v-row>
         </v-container>
 
         <!-- VUETIFY DIVIDER -->
         <v-container>
-          <v-row>
-            <v-col>
-              <v-divider></v-divider>
+          <v-row class="mt-0">
+            <v-col class="flashing-col">
+              <v-divider color="#000" class="mt-0 flashing-divider"></v-divider>
             </v-col>
           </v-row>
         </v-container>
@@ -344,6 +374,11 @@ let app = new Vue({
       setTimeout(function () {
         firmwareFile = arrayBuffer
       }, 500)
+    },
+
+    // Displays firmware flashing status on flash button click
+    flashingStatusChanged() {
+      this.isFlashing = true
     }
   },
 
