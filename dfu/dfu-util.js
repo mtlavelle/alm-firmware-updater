@@ -292,6 +292,13 @@ var device = null
     function onDisconnect(reason) {
       if (reason) {
         statusDisplay.textContent = reason
+
+        let element = document.getElementById('status')
+
+        if (element.innerHTML === 'Device Disconnected') {
+          element.classList.remove('moduleConnected')
+          element.classList.add('moduleDisconnected')
+        }
       }
 
       connectButton.textContent = 'Connect'
@@ -407,7 +414,15 @@ var device = null
       clearLog(downloadLog)
 
       // Display basic USB information
-      statusDisplay.textContent = 'Connected!'
+      statusDisplay.textContent = 'Connected'
+
+      let element = document.getElementById('status')
+
+      if (element.innerHTML === 'Connected') {
+        element.classList.remove('moduleDisconnected')
+        element.classList.add('moduleConnected')
+      }
+
       connectButton.textContent = 'Disconnect'
       infoDisplay.textContent = ''
 

@@ -8,8 +8,7 @@ let data = {
   modules: [],
   firmwares: [],
   selectedModule: null,
-  selectedFirmware: null,
-  isFlashing: false
+  selectedFirmware: null
 }
 
 // Declare buffer variables
@@ -225,7 +224,6 @@ let app = new Vue({
                 color="#ffbc01"
                 id="download"
                 :disabled="noDevice || !selectedFirmware"
-                @click="flashingStatusChanged"
               >
                 Flash
               </v-btn>
@@ -237,10 +235,6 @@ let app = new Vue({
         <v-container>
           <v-row>
             <v-col class="flashing-info-col">
-              <h3 v-if="isFlashing">
-                Flashing Status for {{ selectedFirmware.module }},
-                firmware {{ selectedFirmware.name }}:
-              </h3>
               <div class="log" id="downloadLog"></div>
             </v-col>
           </v-row>
@@ -270,6 +264,7 @@ let app = new Vue({
                   Connect the module directly to the computer via USB cable, it will
                   remain unlit.
                 </li>
+                <li>Click connect and select STM32 Bootloader from the list.</li>
                 <li>Select your module and PCB revision (if applicable).</li>
                 <li>
                   Choose the firmware you would like to install and click flash.
@@ -372,11 +367,6 @@ let app = new Vue({
       setTimeout(function () {
         firmwareFile = arrayBuffer
       }, 500)
-    },
-
-    // Displays firmware flashing status on flash button click
-    flashingStatusChanged() {
-      this.isFlashing = true
     }
   },
 

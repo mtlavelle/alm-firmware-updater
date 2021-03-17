@@ -15,34 +15,43 @@
 h1,
 h2,
 h3,
-.v-btn {
+.v-btn,
+.log h4 {
   font-family: 'raisonne-demibold-pro', Helvetica, Arial, sans-serif;
 }
 
-.v-btn:not(.v-btn--round).v-size--default {
-  height: 38px;
+p,
+li,
+.v-select__selections,
+.v-list-item__title {
+  font-family: 'basis-grotesque-regular-pro', Helvetica, Arial, sans-serif;
 }
 
 h1 {
   font-size: 3rem;
 }
 
-p,
-li,
-.v-select__selections {
-  font-family: 'basis-grotesque-regular-pro', Helvetica, Arial, sans-serif;
+.v-btn:not(.v-btn--round).v-size--default {
+  height: 38px;
 }
 
 #status {
   color: #ff2136;
-  padding: 0.2rem;
+}
+
+.moduleDisconnected {
+  color: #ff2136 !important;
+}
+
+.moduleConnected {
+  color: #000 !important;
 }
 
 .log h4 {
   text-align: left;
   margin-top: 0.5rem;
   margin-bottom: 0;
-  font-size: 1.5rem;
+  font-size: 18.72px;
 }
 
 .flashing-info-col,
