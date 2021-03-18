@@ -73,13 +73,6 @@ let app = new Vue({
               <h3>Connect Module</h3>
               <v-btn id="connect" color="#ffbc01" class="mt-5">Connect</v-btn>
             </v-col>
-
-            <v-col cols="6">
-              <h3>Connection Status:</h3>
-              <strong>
-                <h3 id="status" class="mt-5"></h3>
-              </strong>
-            </v-col>
           </v-row>
         </v-container>
 
@@ -154,13 +147,20 @@ let app = new Vue({
           </v-row>
         </v-container>
 
-        <!-- VUETIFY DIVIDER -->
+        <!-- DISPLAYS CONNECTION INFO -->
         <v-container>
           <v-row>
-            <v-col>
-              <br/>
-              <v-divider color="#000"></v-divider>
-              <br/>
+            <v-col class="status-info-col">
+              <h3 id="status">No Module Connected</h3>
+            </v-col>
+          </v-row>
+        </v-container>
+
+        <!-- VUETIFY DIVIDER -->
+        <v-container>
+          <v-row class="mt-0">
+            <v-col class="status-col">
+              <v-divider color="#000" class="mt-0 status-divider"></v-divider>
             </v-col>
           </v-row>
         </v-container>
@@ -183,6 +183,7 @@ let app = new Vue({
         <!-- SELECT FIELDS -->
         <v-container>
           <v-row style="flex-wrap: nowrap">
+            <!-- SELECT MODULE -->
             <v-col cols="6">
               <v-select
                 :items="modules"
@@ -198,6 +199,7 @@ let app = new Vue({
               </v-select>
             </v-col>
 
+            <!-- SELECT FIRMWARE -->
             <v-col cols="4">
               <v-select
                 :items="moduleFirmwares"
@@ -205,6 +207,7 @@ let app = new Vue({
                 @change="programChanged"
                 label="Firmware"
                 item-text="name"
+                no-data-text="First select a module"
                 id="firmwareFile"
                 :state="Boolean(firmwareFile)"
                 background-color="#f6f6f6"
@@ -219,6 +222,7 @@ let app = new Vue({
               </v-select>
             </v-col>
 
+            <!-- FLASH BUTTON -->
             <v-col cols="2">
               <v-btn
                 color="#ffbc01"
@@ -234,7 +238,7 @@ let app = new Vue({
         <!-- DISPLAYS INFO LOG WHILE FLASHING -->
         <v-container>
           <v-row>
-            <v-col class="flashing-info-col">
+            <v-col class="status-info-col">
               <div class="log" id="downloadLog"></div>
             </v-col>
           </v-row>
@@ -243,8 +247,8 @@ let app = new Vue({
         <!-- VUETIFY DIVIDER -->
         <v-container>
           <v-row class="mt-0">
-            <v-col class="flashing-col">
-              <v-divider color="#000" class="mt-0 flashing-divider"></v-divider>
+            <v-col class="status-col">
+              <v-divider color="#000" class="mt-0 status-divider"></v-divider>
             </v-col>
           </v-row>
         </v-container>
