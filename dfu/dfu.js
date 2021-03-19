@@ -567,7 +567,7 @@ var dfu = {}
       await this.abortToIdle()
     }
 
-    this.logInfo(`Read ${bytes_read} bytes`)
+    this.logInfo(`Read ${bytes_read} bytes...`)
 
     return new Blob(blocks, { type: 'application/octet-stream' })
   }
@@ -646,7 +646,7 @@ var dfu = {}
       throw 'Error during final DFU download: ' + error
     }
 
-    this.logInfo('Wrote ' + bytes_sent + ' bytes...')
+    this.logInfo(`Wrote ${bytes_sent} bytes...`)
     this.logInfo('Installing new firmware...')
 
     if (manifestationTolerant) {
