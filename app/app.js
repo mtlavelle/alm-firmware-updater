@@ -13,9 +13,9 @@ let data = {
 
 // Declare buffer variables
 let arrayBuffer
-let sourceFileBuffer
 let firmwareFileBuffer
 
+// Get root URL of project
 function getRootUrl() {
   let url = document.URL
   return url
@@ -43,6 +43,7 @@ function readServerFirmwareFile(path) {
 let app = new Vue({
   el: '#app',
 
+  // Use Vuetify
   vuetify: new Vuetify(),
 
   template: `
@@ -296,66 +297,50 @@ let app = new Vue({
   },
 
   mounted() {
-    // Calls readTextFile function on page load
-    this.readTextFile()
+    // Calls readFirmwareFile function on page load
+    this.readFirmwareFile()
   },
 
   methods: {
     // Fetches and parses data from local JSON files
-    readTextFile() {
+    readFirmwareFile() {
       let self = this
-      let sourceFile = new XMLHttpRequest()
+      let srcURL = getRootUrl().concat('data/firmware.json')
+      let firmwareFile = new XMLHttpRequest()
 
-      sourceFile.overrideMimeType('application/json')
-      sourceFile.open('GET', '../data/moduleSource.json', true)
-      sourceFile.responseType = 'text'
+      firmwareFile.overrideMimeType('application/json')
+      firmwareFile.open('GET', srcURL, true)
+      firmwareFile.responseType = 'text'
 
-      sourceFile.onreadystatechange = function () {
-        if (sourceFile.readyState === 4 && sourceFile.status == '200') {
-          let sourceObject = this.response
-          sourceFileBuffer = JSON.parse(sourceObject)
+      firmwareFile.onreadystatechange = function () {
+        if (firmwareFile.readyState === 4 && firmwareFile.status == '200') {
+          let firmwareObject = this.response
+          firmwareFileBuffer = JSON.parse(firmwareObject)
 
-          sourceFileBuffer.forEach(() => {
-            let firmwareFile = new XMLHttpRequest()
+          // Parses all firmware options and appends them to the
+          // firmwares data array
+          firmwareFileBuffer.forEach(firmware => {
+            self.firmwares.push(firmware)
+          })
 
-            firmwareFile.overrideMimeType('application/json')
-            firmwareFile.open('GET', '../data/firmware.json', true)
-            firmwareFile.responseType = 'text'
+          // Parses module names from firmwareFileBuffer
+          const moduleFilter = [
+            ...new Set(
+              firmwareFileBuffer.map(moduleObject => moduleObject.module)
+            )
+          ]
 
-            firmwareFile.onreadystatechange = function () {
-              if (this.readyState === 4 && this.status === 200) {
-                let firmwareObject = this.response
-                firmwareFileBuffer = JSON.parse(firmwareObject)
-
-                // Parses all firmware options and appends them to the
-                // firmwares data array
-                firmwareFileBuffer.forEach(firmware => {
-                  self.firmwares.push(firmware)
-                })
-
-                // Parses module names from firmwareFileBuffer
-                const moduleFilter = [
-                  ...new Set(
-                    firmwareFileBuffer.map(moduleObject => moduleObject.module)
-                  )
-                ]
-
-                // Filters unique module names from all firmware options and
-                // appends them to the modules data array
-                moduleFilter.forEach(function (uniqueModule) {
-                  if (!self.modules.includes(uniqueModule)) {
-                    self.modules.push(uniqueModule)
-                  }
-                })
-              }
+          // Filters unique module names from all firmware options and
+          // appends them to the modules data array
+          moduleFilter.forEach(function (uniqueModule) {
+            if (!self.modules.includes(uniqueModule)) {
+              self.modules.push(uniqueModule)
             }
-
-            firmwareFile.send(null)
           })
         }
       }
 
-      sourceFile.send(null)
+      firmwareFile.send(null)
     },
 
     // Gets firmware file path from selectedFirmware and
@@ -364,7 +349,7 @@ let app = new Vue({
       let self = this
       self.firmwareFileName = self.selectedFirmware.name
       this.displaySelectedFile = true
-      let firmwarePath = self.selectedFirmware.filepath
+      let firmwarePath = self.selectedFirmware.filePath
 
       readServerFirmwareFile(firmwarePath)
 
@@ -381,7 +366,7 @@ let app = new Vue({
 
       let newFirmware = {
         name: newfile.name,
-        filepath: null,
+        filePath: null,
         module: null
       }
 
